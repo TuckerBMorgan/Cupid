@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 tungstenite = "0.16.0"
+
+local-ip-address = "0.5.1"
+
+const_format = "0.2.30"

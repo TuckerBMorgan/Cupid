@@ -1,7 +1,11 @@
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
+use std::process;
 use std::thread;
 use std::sync::mpsc::channel;
+use local_ip_address::local_ip;
+use const_format::formatcp;
+
 
 //96 is the decimal value for the ascii character @
 const END_OF_MESSAGE_VALUE : u8 = 96;
@@ -16,7 +20,16 @@ fn main() {
     //Thread 1 handles making the connections with other computers
     //Then will punt those connections over a mspc queue to Thread 2
     let listener = thread::spawn(move || {
-        let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+        let listener;
+
+        if let Ok(server_ip) = local_ip() {
+            listener = TcpListener::bind(format!("{}{}", server_ip.to_string(), ":7878")).unwrap();
+        } else {
+            println!("Failed to acquire server IP.");
+
+            process::exit(1);
+        }
+
         println!("{:?}", listener.local_addr());
         for stream in listener.incoming() {
             let stream = stream.unwrap();
